@@ -17,7 +17,4 @@ targetTemp(12).
 
 +!start : true <- .print("hello world.").	
 
-+temp(Room, Temp) : Temp > 12 <- cool(Room). 
-
-
-
++temp(Room, Temp) : targetTemp(T) & Temp > T  <- cool(Room). 
