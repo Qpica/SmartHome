@@ -3,6 +3,8 @@
 import jason.asSyntax.*;
 import jason.asSyntax.parser.ParseException;
 import jason.environment.*;
+
+import java.util.ArrayList;
 import java.util.logging.*;
 
 public class SHEnv extends Environment {
@@ -21,13 +23,25 @@ public class SHEnv extends Environment {
     private static final Room room1 = new Room(24, 20, "room1");
     private static final Room room2 = new Room(23, 20, "room2");
     
-    private static final boolean heatingIsOn = false;
+    private static ArrayList<Room> roomList = new ArrayList<>();
+    
+    
+    private static boolean heatingIsOn = false;
+    
+    private static final Integer RequiredVotes = 4;
+    private static Integer ReceivedVotes = 0;
     
 
     /** Called before the MAS execution with the args informed in .mas2j */
     @Override
     public void init(String[] args) {
         super.init(args);
+        
+        roomList.add(kitchen);
+        roomList.add(chamber);
+        roomList.add(room1);
+        roomList.add(room2);
+        
         try {
         	// add global percepts
 			addPercept(hoff);
@@ -36,13 +50,13 @@ public class SHEnv extends Environment {
 			addPercept("chamber_Agent", Literal.parseLiteral("temp(chamber,"+ chamber.currentTemp +")"));
 			
 			//add percepts to kitchen_Agent
-			
+			addPercept("kitchen_Agent", Literal.parseLiteral("temp(kitchen,"+ kitchen.currentTemp +")"));
 			
 			//add percepts to room1_Agent
-			
+			addPercept("room1_Agent", Literal.parseLiteral("temp(room1,"+ room1.currentTemp +")"));
 			
 			//add percepts to room2_Agent
-			
+			addPercept("room2_Agent", Literal.parseLiteral("temp(room2,"+ room2.currentTemp +")"));
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -52,11 +66,10 @@ public class SHEnv extends Environment {
 
     @Override
     public boolean executeAction(String agName, Structure action) {
-        logger.info("[" + agName + "] doing: " + action );
         boolean result = false;
 
-        if (action.getFunctor().equals("cool")) {
-            //informAgsEnvironmentChanged();
+        if(action.getFunctor().equals("cool")) {
+            
         	String roomName = action.getTerm(0).toString();
         	
         	if(chamber.name.equals(roomName)) {
@@ -65,7 +78,37 @@ public class SHEnv extends Environment {
         	}
         }
         
+        
+        
+        //set heating state
+        if(action.getFunctor().equals("heat_on")) {
+        	logger.info("Heating is turned ON");
+        	SHEnv.heatingIsOn = true;
+        	result = true;
+        }
+        else if(action.getFunctor().equals("heat_off")) {
+        	logger.info("Heating is turned OFF");
+        	SHEnv.heatingIsOn = false;
+        	result = true;
+        }
+        
+        //do action based on heating state
+        if(SHEnv.heatingIsOn) {
+        	for(Room room : roomList) {
+        		room.heat(1.0);
+        	}
+        	result = true;
+        }
+        else if(!SHEnv.heatingIsOn) {
+        	for(Room room : roomList) {
+        		room.cool(0.1);
+        	}
+        	result = true;
+        }
+        
+        
         updatePercepts();
+        informAgsEnvironmentChanged();
         return result; // the action was executed with success
     }
 
@@ -87,8 +130,18 @@ public class SHEnv extends Environment {
     	}
     	
     	//add local Percepts
-    	//chamber_Agent
-    	addPercept("chamber_Agent", Literal.parseLiteral("temp(chamber,"+ chamber.currentTemp +")"));
+    	//add percepts to chamber_Agent
+		addPercept("chamber_Agent", Literal.parseLiteral("temp(chamber,"+ chamber.currentTemp +")"));
+		
+		//add percepts to kitchen_Agent
+		addPercept("kitchen_Agent", Literal.parseLiteral("temp(kitchen,"+ kitchen.currentTemp +")"));
+		
+		//add percepts to room1_Agent
+		addPercept("room1_Agent", Literal.parseLiteral("temp(room1,"+ room1.currentTemp +")"));
+		
+		//add percepts to room2_Agent
+		addPercept("room2_Agent", Literal.parseLiteral("temp(room2,"+ room2.currentTemp +")"));
+
     }
     
 }

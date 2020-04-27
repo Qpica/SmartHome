@@ -17,4 +17,8 @@ targetTemp(12).
 
 +!start : true <- .print("hello world.").	
 
-+temp(Room, Temp) : targetTemp(T) & Temp > T  <- cool(Room). 
++temp(Room, Temp) : targetTemp(T) & Temp > T  <- cool(Room).
+
++temp(Room, Temp) : targetTemp(T) & Temp > T <- heat_off.
+
++temp(Room, Temp) : targetTemp(T) & Temp <= T <- heat_on.
