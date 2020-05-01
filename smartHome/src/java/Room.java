@@ -3,11 +3,15 @@ class Room {
 	final double targetTemp;
 	double currentTemp;
 	String name;
+	boolean isHeatingRequired;
+	boolean hasVoted;
 	
 	Room(double targetTemp, double currentTemp, String name){
 		this.targetTemp = targetTemp;
 		this.currentTemp = currentTemp;
 		this.name = name;
+		this.isHeatingRequired = false;
+		this.hasVoted = false;
 	}
 	
 	public void heat(Double temperature) {

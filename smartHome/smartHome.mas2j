@@ -5,10 +5,10 @@ MAS smartHome {
 	environment: SHEnv
 
 	agents:
-		kitchen_Agent;
-		chamber_Agent;
-		room2_Agent;
-		room1_Agent;
+		kitchen room_agent;
+		basement room_agent;
+		room1 room_agent;
+		room2 room_agent;
 
 	aslSourcePath:
 		"src/asl";
