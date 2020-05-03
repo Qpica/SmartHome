@@ -11,13 +11,6 @@ public class SHEnv extends Environment {
 
     private Logger logger = Logger.getLogger("smartHome."+SHEnv.class.getName());
     
-    
-    public static final Literal hoff = Literal.parseLiteral("heating_off");
-    public static final Literal hon = Literal.parseLiteral("heating_on");
-    //public static final Literal ccr = Literal.parseLiteral("cool(Chamber)"); //cool room
-    //public static final Literal hcr = Literal.parseLiteral("heat(Chamber)"); //heat room
-    
-    
     private static final Room kitchen = new Room(20, 20, "kitchen");
     private static final Room chamber = new Room(12, 18, "chamber");
     private static final Room room1 = new Room(24, 20, "room1");
@@ -26,7 +19,7 @@ public class SHEnv extends Environment {
     private static ArrayList<Room> roomList = new ArrayList<>();
     
     
-    private static boolean heatingIsOn = false;
+    private static boolean isHeatingOn = false;
     
     private static final Integer RequiredVotes = 4;
     private static Integer ReceivedVotes = 0;
@@ -43,20 +36,8 @@ public class SHEnv extends Environment {
         roomList.add(room2);
         
         try {
-        	// add global percepts
-			addPercept(hoff);
+        	updatePercepts();
 			
-			//add percepts to chamber_Agent
-			addPercept("chamber_Agent", Literal.parseLiteral("temp(chamber,"+ chamber.currentTemp +")"));
-			
-			//add percepts to kitchen_Agent
-			addPercept("kitchen_Agent", Literal.parseLiteral("temp(kitchen,"+ kitchen.currentTemp +")"));
-			
-			//add percepts to room1_Agent
-			addPercept("room1_Agent", Literal.parseLiteral("temp(room1,"+ room1.currentTemp +")"));
-			
-			//add percepts to room2_Agent
-			addPercept("room2_Agent", Literal.parseLiteral("temp(room2,"+ room2.currentTemp +")"));
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -67,45 +48,30 @@ public class SHEnv extends Environment {
     @Override
     public boolean executeAction(String agName, Structure action) {
         boolean result = false;
-
-        if(action.getFunctor().equals("cool")) {
-            
-        	String roomName = action.getTerm(0).toString();
-        	
-        	if(chamber.name.equals(roomName)) {
-        		chamber.currentTemp -= 1;
-        		result = true;
-        	}
-        }
-        
-        
         
         //set heating state
-        if(action.getFunctor().equals("heat_on")) {
-        	logger.info("Heating is turned ON");
-        	SHEnv.heatingIsOn = true;
+        if(action.getFunctor().equals("heating_off")) {
+        	logger.info("Heating is turned OFF");
+        	isHeatingOn = false;
         	result = true;
         }
-        else if(action.getFunctor().equals("heat_off")) {
-        	logger.info("Heating is turned OFF");
-        	SHEnv.heatingIsOn = false;
+        else if(action.getFunctor().equals("heating_on")){
+        	logger.info("Heating is turned ON");
+        	isHeatingOn = true;
         	result = true;
         }
         
         //do action based on heating state
-        if(SHEnv.heatingIsOn) {
+        if(isHeatingOn) {
         	for(Room room : roomList) {
         		room.heat(1.0);
         	}
-        	result = true;
         }
-        else if(!SHEnv.heatingIsOn) {
+        else{
         	for(Room room : roomList) {
-        		room.cool(0.1);
+        		room.cool(0.5);
         	}
-        	result = true;
         }
-        
         
         updatePercepts();
         informAgsEnvironmentChanged();
@@ -119,29 +85,28 @@ public class SHEnv extends Environment {
     }
     
     private void updatePercepts() {
-    	clearPercepts();
-    	
-    	//add global percepts
-    	if(heatingIsOn) {
-    		addPercept(hon);
-    	}
-    	else {
-    		addPercept(hoff);
-    	}
-    	
-    	//add local Percepts
-    	//add percepts to chamber_Agent
-		addPercept("chamber_Agent", Literal.parseLiteral("temp(chamber,"+ chamber.currentTemp +")"));
-		
-		//add percepts to kitchen_Agent
-		addPercept("kitchen_Agent", Literal.parseLiteral("temp(kitchen,"+ kitchen.currentTemp +")"));
-		
-		//add percepts to room1_Agent
-		addPercept("room1_Agent", Literal.parseLiteral("temp(room1,"+ room1.currentTemp +")"));
-		
-		//add percepts to room2_Agent
-		addPercept("room2_Agent", Literal.parseLiteral("temp(room2,"+ room2.currentTemp +")"));
+    	clearAllPercepts();
 
+    	// add global percepts
+		
+    	//add percepts to chamber_Agent
+    	addPercept("chamber_Agent", Literal.parseLiteral("targetTemp("+ chamber.targetTemp +")"));
+    	addPercept("chamber_Agent", Literal.parseLiteral("temp(chamber,"+ chamber.currentTemp +")"));
+    				
+    				
+    	//add percepts to kitchen_Agent
+    	addPercept("kitchen_Agent", Literal.parseLiteral("targetTemp("+ kitchen.targetTemp +")"));
+    	addPercept("kitchen_Agent", Literal.parseLiteral("temp(kitchen,"+ kitchen.currentTemp +")"));
+    			
+    				
+    	//add percepts to room1_Agent
+    	addPercept("room1_Agent", Literal.parseLiteral("targetTemp("+ room1.targetTemp +")"));
+    	addPercept("room1_Agent", Literal.parseLiteral("temp(room1,"+ room1.currentTemp +")"));
+    				
+    				
+    	//add percepts to room2_Agent
+    	addPercept("room2_Agent", Literal.parseLiteral("targetTemp("+ room2.targetTemp +")"));
+    	addPercept("room2_Agent", Literal.parseLiteral("temp(room2,"+ room2.currentTemp +")"));
     }
     
 }
