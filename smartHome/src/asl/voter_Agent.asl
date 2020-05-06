@@ -18,28 +18,21 @@
 
 //+heat_on[source(S)] : true <- .print("I received a call from ", S).
 
-+heat_off[source(S)] : true <- 
-+vote(S,heat_off);
-.count(vote(_,heat_off), COff); 
-.print("I have received so much HEAT_OFF: ", COff);
-.abolish(heat_off);
-!countVotes.
 
++vote(S,heat_off) : true <- 
++judge.
 
-+heat_on[source(S)] : true <- 
-+vote(S,heat_on);
-.count(vote(_,heat_on), COn); 
-.print("I have received so much HEAT_ON: ", COn);
-.abolish(heat_on);
-!countVotes.
++vote(S,heat_on) : true <- 
++judge.
 
-+!countVotes : .count(vote(_,_), Votes) & Votes == 4 <-
-.print("COUNTING VOTES");
++judge : .count(vote(_,_),4) <-
+.print("DECIDING WHAT TO DO");
 .count(vote(_,heat_on), COn);
 .print("FOR HEATING: ", COn);
 .count(vote(_,heat_off), COff);
 .print("FOR NOT HEATING: ", COff);
-if	(COn > COff) { heating_on}
-else { heating_off}.
+.abolish(vote(_,_));
+if	(COn > COff) { heating_on; .abolish(judge)}
+else { heating_off; .abolish(judge)}.
 
-//+!countVotes : true <- .print("").
++judge : true <- .abolish(judge).
