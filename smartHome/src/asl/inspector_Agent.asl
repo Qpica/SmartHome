@@ -1,7 +1,5 @@
-// Agent chamber_Agent in project smartHome
-
 /*
- * Wants to keep the room cold
+ * Wants to keep the room at the desired temperature
  * 
  */
 
@@ -13,7 +11,7 @@
 
 /* Plans */
 
-+!start : true <- .print("Hello World").
++!start : true <- .print("I am an Inspector").
 
 +temp(Room, Temp) : targetTemp(T) & Temp >= T  <- 
 .print("DONT WANT HEAT");

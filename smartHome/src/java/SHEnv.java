@@ -12,7 +12,7 @@ public class SHEnv extends Environment {
     private Logger logger = Logger.getLogger("smartHome."+SHEnv.class.getName());
     
     private static final Room kitchen = new Room(20, 15, "kitchen");
-    private static final Room chamber = new Room(12, 18, "chamber");
+    private static final Room chamber = new Room(19, 18, "chamber");
     private static final Room room1 = new Room(24, 20, "room1");
     private static final Room room2 = new Room(23, 20, "room2");
     
